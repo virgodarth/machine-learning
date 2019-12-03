@@ -1,11 +1,40 @@
 import pandas as pd
+import numpy as np
+
+from matplotlib import pyplot as plt
 
 from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_selection import SelectKBest, f_regression, chi2
-from sklearn.ensemble import ExtraTreesClassifier, ExtraTreesRegressor, RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier, ExtraTreesRegressor
+
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.svm import SVC
 
 
 class PreProcessingData:
+    _regression_algs = [
+        LinearRegression(),
+        KNeighborsRegressor(),
+        DecisionTreeRegressor(),
+        RandomForestRegressor(),
+        SVC(gamma=0.001, C=100)
+    ]
+
+    _classifier_algs = [
+        LogisticRegression(),
+        GaussianNB(),
+        BernoulliNB(),
+        MultinomialNB(),
+        KNeighborsClassifier(),
+        DecisionTreeClassifier(),
+        RandomForestClassifier(),
+        SVC(gamma=0.001, C=100)
+    ]
+
     def __init__(self, data, mode):
         self._data = data
         self._mode = mode
@@ -62,4 +91,28 @@ class PreProcessingData:
 
         return feature_importances_
 
+    def get_best_models(self, column_name, models=None):
+        if models is None:
+            models = self._regression_algs if self._mode == 'regression' else self._classifier_algs
 
+        inputs = self._data.drop([column_name], axis=1)
+        output = self._data[column_name]
+        cv = 5
+        entries = []
+        for i, model in enumerate(models):
+            scores = []
+            for j in range(cv):
+                model_name = model.__class__.__name__
+                model.fit(inputs, output)
+                score = model.score(inputs, output)
+                scores.append(score)
+            entries.append([model_name, np.array(scores).mean()])
+        cv_df = pd.DataFrame(entries, columns=['model_name', 'score_mean'])
+
+        return cv_df
+
+    def draw_plot(self, plot_method):
+        for col in self._data.columns:
+            fig = plt.figure()
+            plot_method(self._data[col])
+        plt.show()
