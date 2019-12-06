@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 
 from matplotlib import pyplot as plt
+from sklearn.model_selection import train_test_split
 
 from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_selection import SelectKBest, f_regression, chi2
@@ -12,7 +13,7 @@ from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.svm import SVC
+from sklearn.svm import SVC, SVR
 
 
 class PreProcessingData:
@@ -21,7 +22,7 @@ class PreProcessingData:
         KNeighborsRegressor(),
         DecisionTreeRegressor(),
         RandomForestRegressor(),
-        SVC(gamma=0.001, C=100)
+        SVR(gamma=0.1, C=100)
     ]
 
     _classifier_algs = [
@@ -32,18 +33,23 @@ class PreProcessingData:
         KNeighborsClassifier(),
         DecisionTreeClassifier(),
         RandomForestClassifier(),
-        SVC(gamma=0.001, C=100)
+        SVC(gamma=0.1, C=100)
     ]
 
     def __init__(self, data, mode):
         self._data = data
         self._mode = mode
+        self.models = self._regression_algs if self._mode == 'regression' else self._classifier_algs
+
+    @property
+    def data(self):
+        return self._data
 
     def label_encode(self, column_name):
         le = LabelEncoder()
         le.fit(self._data[column_name])
         self._data[column_name] = le.transform(self._data[column_name])
-        return self
+        return le
 
     def get_null_column(self):
         check_column = self._data.isna().any()
@@ -91,20 +97,21 @@ class PreProcessingData:
 
         return feature_importances_
 
-    def get_best_models(self, column_name, models=None):
+    def get_best_models(self, column_name, models=None, cv=10, test_size=0.2):
         if models is None:
-            models = self._regression_algs if self._mode == 'regression' else self._classifier_algs
+            models = self.models
 
         inputs = self._data.drop([column_name], axis=1)
         output = self._data[column_name]
-        cv = 5
+        X_train, X_test, y_train, y_test = train_test_split(inputs, output, test_size=test_size, random_state=42)
+
         entries = []
         for i, model in enumerate(models):
             scores = []
             for j in range(cv):
                 model_name = model.__class__.__name__
-                model.fit(inputs, output)
-                score = model.score(inputs, output)
+                model.fit(X_train, y_train)
+                score = model.score(X_test, y_test)
                 scores.append(score)
             entries.append([model_name, np.array(scores).mean()])
         cv_df = pd.DataFrame(entries, columns=['model_name', 'score_mean'])
