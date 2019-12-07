@@ -1,4 +1,8 @@
+import numpy as np
+
 from matplotlib import pyplot as plt
+# from matplotlib.colors import ListedColormap
+from mpl_toolkits.mplot3d import Axes3D
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import roc_curve, auc
 from sklearn.preprocessing import LabelBinarizer
@@ -83,5 +87,22 @@ class SupervisedLearning(BaseMachineLearning):
         plt.legend(loc="lower right")
         plt.show()
 
+    def plot_scatter(self, col_x_name, col_y_name, col_z_name=None):
+        # markers = ('s', 'x', 'o', '^', 'v')
+        colors = ('red', 'blue', 'lightgreen', 'gray', 'cyan')
+        color = [colors[x] for x in self.y_predict]
+        fig = plt.figure(figsize=(8, 8))
 
+        if col_z_name:
+            ax = fig.add_subplot(111, projection='3d')
+            ax.scatter(self.X_test[col_x_name], self.X_test[col_y_name], self.X_test[col_z_name], color=color)
+            ax.set_xlabel(col_x_name)
+            ax.set_ylabel(col_y_name)
+            ax.set_zlabel(col_z_name)
+        else:
+            ax = fig.add_subplot()
+            ax.scatter(self.X_test[col_x_name], self.X_test[col_y_name], color=color)
+            ax.set_xlabel(col_x_name)
+            ax.set_ylabel(col_y_name)
+        plt.show()
 

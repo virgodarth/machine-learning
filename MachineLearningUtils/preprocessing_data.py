@@ -72,7 +72,7 @@ class PreProcessingData:
         return best_features_
 
     def get_k_best_features_by_extra_tree(self, output_column, k_feature=None):
-        extra_tree = ExtraTreesRegressor() if self._mode == 'regression' else ExtraTreesClassifier
+        extra_tree = ExtraTreesRegressor(random_state=42) if self._mode == 'regression' else ExtraTreesClassifier(random_state=42)
 
         inputs = self._data.drop([output_column], axis=1)
         output = self._data[output_column]
@@ -85,7 +85,7 @@ class PreProcessingData:
         return feature_importances_
 
     def get_k_best_features_by_random_forest(self, output_column, k_feature=None):
-        forest = RandomForestClassifier()
+        forest = RandomForestRegressor(random_state=42) if self._mode == 'regression' else RandomForestClassifier(random_state=42)
 
         inputs = self._data.drop([output_column], axis=1)
         output = self._data[output_column]
@@ -123,3 +123,4 @@ class PreProcessingData:
             fig = plt.figure()
             plot_method(self._data[col])
         plt.show()
+
