@@ -41,7 +41,7 @@ class SupervisedLearning(BaseMachineLearning):
         model = self._model(**params)
         model.fit(self.X_train, self.y_train)
         self.model = model
-        self.y_predict = self.model.predict(self.X_test)
+        self.y_pred = self.model.predict(self.X_test)
         if self._mode == 'classification':
             self.y_prob = self.model.predict_proba(self.X_test)[:, 1]
 
@@ -89,8 +89,8 @@ class SupervisedLearning(BaseMachineLearning):
 
     def plot_scatter(self, col_x_name, col_y_name, col_z_name=None):
         # markers = ('s', 'x', 'o', '^', 'v')
-        colors = ('red', 'blue', 'lightgreen', 'gray', 'cyan')
-        color = [colors[x] for x in self.y_predict]
+        colors = ('blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan')
+        color = [colors[x] for x in self.y_pred]
         fig = plt.figure(figsize=(8, 8))
 
         if col_z_name:

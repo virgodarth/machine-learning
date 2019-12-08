@@ -123,4 +123,7 @@ class PreProcessingData:
             fig = plt.figure()
             plot_method(self._data[col])
         plt.show()
+    #
+    # def standard_scaler(self):
+    #
 
