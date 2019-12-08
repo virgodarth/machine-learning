@@ -87,12 +87,18 @@ class SupervisedLearning(BaseMachineLearning):
         plt.legend(loc="lower right")
         plt.show()
 
-    def plot_scatter(self, col_x_name, col_y_name, col_z_name=None):
-        # markers = ('s', 'x', 'o', '^', 'v')
+    def plot_scatter(self, col_x_name, col_y_name=None, col_z_name=None):
+        if self._mode == 'classification':
+            self._plot_scatter_with_classification(col_x_name, col_y_name, col_z_name)
+        else:
+            self._plot_scatter_with_regression(col_x_name, col_y_name)
+        plt.legend()
+        plt.show()
+
+    def _plot_scatter_with_classification(self, col_x_name, col_y_name, col_z_name=None):
         colors = ('blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan')
         color = [colors[x] for x in self.y_pred]
         fig = plt.figure(figsize=(8, 8))
-
         if col_z_name:
             ax = fig.add_subplot(111, projection='3d')
             ax.scatter(self.X_test[col_x_name], self.X_test[col_y_name], self.X_test[col_z_name], color=color)
@@ -104,5 +110,23 @@ class SupervisedLearning(BaseMachineLearning):
             ax.scatter(self.X_test[col_x_name], self.X_test[col_y_name], color=color)
             ax.set_xlabel(col_x_name)
             ax.set_ylabel(col_y_name)
-        plt.show()
+
+    def _plot_scatter_with_regression(self, col_x_name, col_y_name=None):
+        fig = plt.figure(figsize=(8, 8))
+        if col_y_name:
+            ax = fig.add_subplot(111, projection='3d')
+            ax.scatter(self.X_test[col_x_name], self.X_test[col_y_name], self.y_test, label='actual')
+            ax.scatter(self.X_test[col_x_name], self.X_test[col_y_name], self.y_pred, label='predict')
+            ax.set_xlabel(col_x_name)
+            ax.set_ylabel(col_y_name)
+            ax.set_zlabel(self._output_data.name)
+        else:
+            ax = fig.add_subplot()
+            ax.scatter(self.X_test[col_x_name], self.y_test, label='actual')
+            ax.scatter(self.X_test[col_x_name], self.y_pred, label='predict')
+            ax.set_xlabel(col_x_name)
+            ax.set_ylabel(self._output_data.name)
+
+
+
 
