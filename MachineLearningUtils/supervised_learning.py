@@ -1,6 +1,7 @@
 import numpy as np
 
 from matplotlib import pyplot as plt
+from sklearn.model_selection import train_test_split
 # from matplotlib.colors import ListedColormap
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.model_selection import GridSearchCV
@@ -11,14 +12,46 @@ from . import BaseMachineLearning
 
 
 class SupervisedLearning(BaseMachineLearning):
-    _model = None
+    """Base class for all supervised learning algorithms
+
+        Provides useful methods
+        for visualize data, build model, choice best param for algorithms, ...
+
+        Attributes
+        ----------
+        _model: Base model, default=None
+            corresponding supervised machine learning algorithms Class
+        _cv: int, default=5
+            Used for GridSearchCV, specify the number of folds
+        __param_grid: dict, default={}
+            Used for GridSearchCV, parameters names (string) as keys and lists of parameter settings to try as values.
+        _best_params: dict, default={}
+            Parameter setting that gave the best results on the hold out data.
+
+        Parameters
+        ----------
+        random_state : int, default=42
+            random_state is the seed used by the random number generator
+    """
     _cv = 5
-    _random_state = 42
     _param_grid = {}
     _best_params = {}
 
-    def __init__(self, **kwargs):
+    def __init__(self, random_state=42, **kwargs):
         super().__init__(**kwargs)
+        self._random_state = random_state
+
+    def train_test_split(self, test_size=0.2):
+        """Split arrays or matrices into random train and test subsets
+
+        Parameters
+        ----------
+        test_size : float, int or None, optional (default=0.2).
+            It's should be between 0.0 and 1.0
+        """
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            self._input_data, self._output_data, test_size=test_size, random_state=self._random_state
+        )
 
     @property
     def best_params(self):
