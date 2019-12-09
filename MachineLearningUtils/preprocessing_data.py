@@ -17,6 +17,27 @@ from sklearn.svm import SVC, SVR
 
 
 class PreProcessingData:
+    """Base class for all supervised learning algorithms
+
+        Provides useful methods
+        for pre-processing data and choice the best algorithms for machine learning model
+
+        Attributes
+        ----------
+        models: dict
+            List of classifier or regression algorithms
+        _data: pd.DataFrame, default=None
+            output_data type. Choose classification or regression
+        _mode: str, default=None
+            output_data type. Choose classification or regression
+
+        Parameters
+        ----------
+        data: pd.DataFrame, default=None
+            data for pre-processing
+        mode: str, default=None
+            output_data type. Choose classification or regression
+    """
     _regression_algs = [
         LinearRegression(),
         KNeighborsRegressor(),
@@ -46,17 +67,20 @@ class PreProcessingData:
         return self._data
 
     def label_encode(self, column_name):
+        """Apply label encoding for column_name"""
         le = LabelEncoder()
         le.fit(self._data[column_name])
         self._data[column_name] = le.transform(self._data[column_name])
         return le
 
     def get_null_column(self):
+        """Return list of columns, which has null"""
         check_column = self._data.isna().any()
         check_column_df = pd.DataFrame({'Column': check_column.index, 'IsNan': check_column.values})
         return check_column_df[check_column_df.IsNan == True]
 
     def get_k_best_features(self, output_column, k_feature=None):
+        """Use SelectKBest to get k best features"""
         score_function = f_regression if self._mode == 'regression' else chi2
         best_features = SelectKBest(score_func=score_function, k='all')
 
@@ -72,6 +96,7 @@ class PreProcessingData:
         return best_features_
 
     def get_k_best_features_by_extra_tree(self, output_column, k_feature=None):
+        """Apply extra tree to get k best features"""
         extra_tree = ExtraTreesRegressor(random_state=42) if self._mode == 'regression' else ExtraTreesClassifier(random_state=42)
 
         inputs = self._data.drop([output_column], axis=1)
@@ -85,6 +110,7 @@ class PreProcessingData:
         return feature_importances_
 
     def get_k_best_features_by_random_forest(self, output_column, k_feature=None):
+        """Apply random forest to get k best features"""
         forest = RandomForestRegressor(random_state=42) if self._mode == 'regression' else RandomForestClassifier(random_state=42)
 
         inputs = self._data.drop([output_column], axis=1)
@@ -98,6 +124,7 @@ class PreProcessingData:
         return feature_importances_
 
     def get_best_models(self, column_name, models=None, cv=10, test_size=0.2):
+        """Calculator score for each algorithms in self.models"""
         if models is None:
             models = self.models
 
@@ -119,11 +146,8 @@ class PreProcessingData:
         return cv_df
 
     def draw_plot(self, plot_method):
+        """Apply plot_method to draw plot for all features"""
         for col in self._data.columns:
             fig = plt.figure()
             plot_method(self._data[col])
         plt.show()
-    #
-    # def standard_scaler(self):
-    #
-
