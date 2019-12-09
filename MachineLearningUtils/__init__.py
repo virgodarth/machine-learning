@@ -32,5 +32,5 @@ class BaseMachineLearning:
 
         self._mode = mode
 
-        self.model = self._model = None
+        self.model = None
         self.X_train = self.X_test = self.y_train = self.y_test = self.y_pred = self.y_prob = None
