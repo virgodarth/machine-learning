@@ -4,12 +4,12 @@ ipython==7.6.1
 jupyter==1.0.0
 matplotlib==3.1.0
 mlxtend==0.17.0
-nltk==3.4.4
+nltk==3.4.5
 notebook==6.0.0
 numpy==1.16.4
 pandas==0.24.2
 pep8==1.7.1
-Pillow==6.1.0
+Pillow==6.2.0
 pmdarima==1.5.1
 python-dateutil==2.8.0
 pytz==2019.1
