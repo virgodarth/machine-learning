@@ -13,7 +13,7 @@ Pillow==6.2.0
 pmdarima==1.5.1
 python-dateutil==2.8.0
 pytz==2019.1
-pywin32==223
+pywin32==301
 pywinpty==0.5.5
 PyYAML==5.1.1
 pyzmq==18.0.0
